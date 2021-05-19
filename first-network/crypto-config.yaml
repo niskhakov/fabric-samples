@@ -22,6 +22,11 @@ OrdererOrgs:
       - Hostname: orderer3
       - Hostname: orderer4
       - Hostname: orderer5
+      - Hostname: orderer6
+      - Hostname: orderer7
+      - Hostname: orderer8
+      - Hostname: orderer9
+      - Hostname: orderer10
 
 # ---------------------------------------------------------------------------
 # "PeerOrgs" - Definition of organizations managing peer nodes

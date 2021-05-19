@@ -85,14 +85,8 @@ updateAnchorPeers 0 1
 echo "Updating anchor peers for org2..."
 updateAnchorPeers 0 2
 
-echo "Adding orderer5.example.com to the system channel"
-channelConfig byfn-sys-channel addOSN
-echo "Adding orderer5.example.com to mychannel"
-channelConfig mychannel addOSN
 
-sleep 2
-echo "Pulling system channel latest block"
-CORE_PEER_LOCALMSPID="OrdererMSP" CORE_PEER_TLS_ROOTCERT_FILE=$ORDERER_CA CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/users/Admin@example.com/msp peer channel fetch config syschan_block.pb -o orderer.example.com:7050 -c byfn-sys-channel --tls --cafile $ORDERER_CA
+committeeConfig
 
 sleep 2
 

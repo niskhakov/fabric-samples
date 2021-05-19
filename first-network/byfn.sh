@@ -174,9 +174,7 @@ function networkUp() {
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
   fi
-  IMAGE_TAG=$IMAGETAG docker-compose ${COMPOSE_FILES} up -d  orderer.example.com orderer2.example.com \
-   orderer3.example.com orderer4.example.com \
-    peer0.org1.example.com peer1.org1.example.com peer0.org2.example.com peer1.org2.example.com cli 2>&1
+  IMAGE_TAG=$IMAGETAG docker-compose ${COMPOSE_FILES} up -d
   docker ps -a
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to start network"
@@ -204,9 +202,6 @@ function networkUp() {
 
   echo "copying latest system channel config block to orderer boot directory"
   docker cp cli:/opt/gopath/src/github.com/hyperledger/fabric/peer/syschan_block.pb channel-artifacts/syschan_block.pb
-
-  echo "Bringing up orderer5.example.com"
-  docker-compose ${COMPOSE_FILES} up orderer5.example.com
 
 }
 
@@ -374,8 +369,22 @@ function generateCerts() {
     rm -Rf crypto-config
   fi
   set -x
+
+  echo `pwd`
+  cp configtx-template.yaml  configtx.yaml
+  cksum configtx-template.yaml
+  cksum configtx.yaml
+  i=1
   docker run -v `pwd`:/mnt smartbft/fabric-tools rm -rf /mnt/crypto-config
   docker run -v `pwd`:/mnt smartbft/fabric-tools cryptogen generate --config=/mnt/crypto-config.yaml --output /mnt/crypto-config
+  find crypto-config/ordererOrganizations/example.com/orderers -name "*_sk" | while read sk; do
+    keystore=$(dirname $sk)
+    selectionPK=$(docker run -v `pwd`:/mnt smartbft/fabric-tools cs detect --userKey /mnt/$sk 2>&1 | grep -v "Generated public key")
+    sed -i "s|%SELECTION_PK${i}%|$selectionPK|" configtx.yaml
+    (( i += 1 ))
+  done
+
+
   res=$?
   set +x
   if [ $res -ne 0 ]; then

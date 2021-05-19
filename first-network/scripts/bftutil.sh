@@ -22,6 +22,33 @@ addOSN() {
     cat config.json |  jq '.channel_group.groups.Orderer.values.ConsensusType.value.metadata.consenters += [{"msp_id": "OrdererMSP", "identity": "'$ecert'", "consenter_id": 5, "client_tls_cert": "'$tlscert'", "host": "orderer5.example.com", "port": 7050, "server_tls_cert": "'$tlscert'"}] ' > modified_config.json
 }
 
+committeeConfig() {
+    set -x
+    channel=mychannel
+
+    setOrdererGlobals
+
+    echo "fetching config block"
+	  CORE_PEER_LOCALMSPID="OrdererMSP"
+	  CORE_PEER_TLS_ROOTCERT_FILE=$ORDERER_CA
+	  CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/users/Admin@example.com/msp
+    peer channel fetch config configBlock.pb -o orderer.example.com:7050 -c mychannel --tls --cafile $ORDERER_CA
+    echo "converting config to JSON"
+    configtxlator proto_decode --input configBlock.pb --type common.Block | jq '.data.data[0].payload.data.config' > config.json
+
+    echo "Editing the channel configuration"
+    cat config.json |  jq '.channel_group.groups.Orderer.values.ConsensusType.value.metadata.options.committee_config = {"committee_minimum_lifespan":3,"failed_total_nodes_percentage":20,"inverse_failure_chance":10000}' > modified_config.json
+    configtxlator proto_encode --input config.json --type common.Config --output config.pb
+    configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
+    configtxlator compute_update --channel_id mychannel --original config.pb --updated modified_config.pb --output update-config.pb
+    configtxlator proto_decode --input update-config.pb --type common.ConfigUpdate | jq . > committee.json
+    echo '{"payload":{"header":{"channel_header":{"channel_id":"mychannel", "type":2}},"data":{"config_update":'$(cat committee.json)'}}}' | jq . > committee-update.json
+    configtxlator proto_encode --input committee-update.json --type common.Envelope --output commttee-update.pb
+
+    peer channel signconfigtx -f commttee-update.pb
+    peer channel update -f commttee-update.pb -c mychannel -o orderer.example.com:7050 --tls --cafile $ORDERER_CA
+}
+
 
 channelConfig() {
     set -x

@@ -454,7 +454,7 @@ Profiles:
                   ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
                   ConsenterId: 1
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp/signcerts/orderer.example.com-cert.pem
-                  SelectionPk: ktd41qubbBmraLjAKKQUTWpuUHFdT2poLu0DSFdYf5Q=
+                  SelectionPk: %SELECTION_PK1%
                 - Host: orderer2.example.com
                   MSPID: OrdererMSP
                   Port: 7050
@@ -462,7 +462,7 @@ Profiles:
                   ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
                   ConsenterId: 2
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/msp/signcerts/orderer2.example.com-cert.pem
-                  SelectionPk: 8uh9wjeZzeDh94bj1XNr5Z85mUv+zvuG1637QuQdDQg=
+                  SelectionPk: %SELECTION_PK2%
                 - Host: orderer3.example.com
                   MSPID: OrdererMSP
                   Port: 7050
@@ -470,7 +470,7 @@ Profiles:
                   ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/server.crt
                   ConsenterId: 3
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer3.example.com/msp/signcerts/orderer3.example.com-cert.pem
-                  SelectionPk: kf/CpWEy38woBkpmFsDU5DpHz2slTA7HV9hDMt19/mE=
+                  SelectionPk: %SELECTION_PK3%
                 - Host: orderer4.example.com
                   MSPID: OrdererMSP
                   Port: 7050
@@ -478,7 +478,7 @@ Profiles:
                   ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
                   ConsenterId: 4
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/msp/signcerts/orderer4.example.com-cert.pem
-                  SelectionPk: B3U7E8iK5Z3sQMHWrV39DhZsTxJoPzDBORI2qWTo/Yk=
+                  SelectionPk: %SELECTION_PK4%
                 - Host: orderer5.example.com
                   Port: 7050
                   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer5.example.com/tls/server.crt
@@ -486,7 +486,7 @@ Profiles:
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer5.example.com/msp/signcerts/orderer5.example.com-cert.pem
                   ConsenterId: 5
                   MSPID: OrdererMSP
-                  SelectionPk: GdiXExEXYD0+IMCZuvs2PrnQoyZOAKPl61la/pEV6ZA=
+                  SelectionPk: %SELECTION_PK5%
                 - Host: orderer6.example.com
                   Port: 7050
                   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer6.example.com/tls/server.crt
@@ -494,7 +494,7 @@ Profiles:
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer6.example.com/msp/signcerts/orderer6.example.com-cert.pem
                   ConsenterId: 6
                   MSPID: OrdererMSP
-                  SelectionPk: /dmssh1NrWx9c1HZ6p1lXlQEkyp6PZ04gO1fMN1BtOE=
+                  SelectionPk: %SELECTION_PK6%
                 - Host: orderer7.example.com
                   Port: 7050
                   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer7.example.com/tls/server.crt
@@ -502,7 +502,7 @@ Profiles:
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer7.example.com/msp/signcerts/orderer7.example.com-cert.pem
                   ConsenterId: 7
                   MSPID: OrdererMSP
-                  SelectionPk: EH36xAQFO2ZckDlOC44WJeIB5ffA28gCAAoby8D53YI=
+                  SelectionPk: %SELECTION_PK7%
                 - Host: orderer8.example.com
                   Port: 7050
                   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer8.example.com/tls/server.crt
@@ -510,7 +510,7 @@ Profiles:
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer8.example.com/msp/signcerts/orderer8.example.com-cert.pem
                   ConsenterId: 8
                   MSPID: OrdererMSP
-                  SelectionPk: l4c6P021YcetOUZmCSnH7VF28hxGAoLaAAQHHP1FWNs=
+                  SelectionPk: %SELECTION_PK8%
                 - Host: orderer9.example.com
                   Port: 7050
                   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer9.example.com/tls/server.crt
@@ -518,7 +518,7 @@ Profiles:
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer9.example.com/msp/signcerts/orderer9.example.com-cert.pem
                   ConsenterId: 9
                   MSPID: OrdererMSP
-                  SelectionPk: gZHj/NBaU0mtCk0x9gKKJ6+x0qsjzlwzmFe/Fzlf2HY=
+                  SelectionPk: %SELECTION_PK9%
                 - Host: orderer10.example.com
                   Port: 7050
                   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer10.example.com/tls/server.crt
@@ -526,7 +526,7 @@ Profiles:
                   Identity: crypto-config/ordererOrganizations/example.com/orderers/orderer10.example.com/msp/signcerts/orderer10.example.com-cert.pem
                   ConsenterId: 10
                   MSPID: OrdererMSP
-                  SelectionPk: 6fCtQamwY4ygH9mZPswQRrLbqxyTP5K0KC8rRD4Iwks=
+                  SelectionPk: %SELECTION_PK10%
             Addresses:
                 - orderer.example.com:7050
                 - orderer2.example.com:7050
