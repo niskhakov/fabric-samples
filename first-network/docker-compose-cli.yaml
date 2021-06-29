@@ -59,7 +59,7 @@ services:
 
   cli:
     container_name: cli
-    image: smartbft/fabric-tools:latest
+    image: smartbft/fabric-tools:committee
     tty: true
     stdin_open: true
     environment:
