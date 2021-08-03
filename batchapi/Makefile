@@ -33,7 +33,7 @@ cli-batch:
 	@./cli_batch.sh
 
 cli-stress-put:
-	@./cli-stressPut.sh
+	@./cli-stressPut.sh 100
 
 stress-scenario:
 	@./stress_scenario.sh
