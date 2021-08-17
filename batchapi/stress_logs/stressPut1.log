@@ -1,0 +1,8 @@
+{"method":"put","entries":100,"millis":0,"keylen":20,"batchapi":true,"collection":"","seed":2}
+{"method":"put","entries":400,"millis":5,"keylen":20,"batchapi":true,"collection":"","seed":2}
+{"method":"put","entries":700,"millis":2,"keylen":20,"batchapi":true,"collection":"","seed":2}
+{"method":"put","entries":1000,"millis":5,"keylen":20,"batchapi":true,"collection":"","seed":2}
+{"method":"put","entries":100,"millis":1,"keylen":20,"batchapi":true,"collection":"","seed":2}
+{"method":"put","entries":400,"millis":1,"keylen":20,"batchapi":true,"collection":"","seed":2}
+{"method":"put","entries":700,"millis":3,"keylen":20,"batchapi":true,"collection":"","seed":2}
+{"method":"put","entries":1000,"millis":3,"keylen":20,"batchapi":true,"collection":"","seed":2}

@@ -23,8 +23,8 @@ type SimpleChaincode struct {
 }
 
 const (
-	defaultSeed = 1
-	keyLength   = 7
+	defaultSeed      = 1
+	defaultKeyLength = 7
 )
 
 // Isolate specified rand seed only to methods which use `seededRand`
@@ -113,6 +113,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	case "delManyMarblesBatch":
 		// stress test deleting multiple marbles via one request
 		return t.delManyMarblesBatch(stub, args)
+	case "putRange":
+		return t.putRange(stub, args)
+	case "getRange":
+		return t.getRange(stub, args)
 	default:
 		//error
 		fmt.Println("invoke did not find func: " + function)
@@ -170,6 +174,7 @@ func (t *SimpleChaincode) putManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 	var verboseFlag bool
 	var useBatchAPI bool = true
 	var seedParam int
+	var keyLengthParam int
 	var collectionParam string
 
 	// check for verbose param
@@ -197,13 +202,23 @@ func (t *SimpleChaincode) putManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 		collectionParam = args[indx+1]
 	}
 
+	// check for keyLength param
+	if indx := find(args, "keylength"); indx != -1 && indx+1 < len(args) {
+		keyLengthParam, err = strconv.Atoi(args[indx+1])
+		if err != nil {
+			keyLengthParam = defaultKeyLength
+		}
+	} else {
+		keyLengthParam = defaultKeyLength
+	}
+
 	RandReset(seedParam)
 	keys := make([]string, 0)
 	kvMap := make([]shim.StateKV, 0)
 	for i := 0; i < keyQty; i++ {
-		k := RandString(keyLength)
+		k := RandString(keyLengthParam)
 		keys = append(keys, k)
-		v := RandString(keyLength)
+		v := RandString(keyLengthParam)
 		collection := collectionParam
 		kvMap = append(kvMap, shim.StateKV{Collection: collection, Key: k, Value: []byte(v)})
 	}
@@ -248,10 +263,10 @@ func (t *SimpleChaincode) putManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 
 	var verboseMsg string
 	if verboseFlag {
-		verboseMsg = fmt.Sprintf("useBatchAPI: %t, Collection: `%s`, Seed: %d, Keys: %s", useBatchAPI, collectionParam, seedParam, strings.Join(keys, ", "))
+		verboseMsg = fmt.Sprintf("useBatchAPI: %t, Collection: `%s`, Seed: %d, KeyLength: %d, Keys: %s", useBatchAPI, collectionParam, seedParam, keyLengthParam, strings.Join(keys, ", "))
 	}
 
-	res := fmt.Sprintf("Put state invoked: putting %d entries in the ledger takes %s %s", keyQty, duration.String(), verboseMsg)
+	res := fmt.Sprintf(`PutState:{"method":"put","entries":%d,"millis":%d,"keylen":%d,"batchapi":%t,"collection":"%s","seed":%d} %s`, keyQty, duration.Milliseconds(), keyLengthParam, useBatchAPI, collectionParam, seedParam, verboseMsg)
 
 	return shim.Success([]byte(res))
 }
@@ -301,6 +316,7 @@ func (t *SimpleChaincode) getManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 	var verboseFlag bool
 	var useBatchAPI bool = true
 	var seedParam int
+	var keyLengthParam int
 	var collectionParam string
 
 	// check for verbose param
@@ -328,15 +344,25 @@ func (t *SimpleChaincode) getManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 		collectionParam = args[indx+1]
 	}
 
+	// check for keyLength param
+	if indx := find(args, "keylength"); indx != -1 && indx+1 < len(args) {
+		keyLengthParam, err = strconv.Atoi(args[indx+1])
+		if err != nil {
+			keyLengthParam = defaultKeyLength
+		}
+	} else {
+		keyLengthParam = defaultKeyLength
+	}
+
 	RandReset(seedParam)
 
 	keys := make([]shim.StateKey, 0)
 	for i := 0; i < keyQty; i++ {
-		keys = append(keys, shim.StateKey{Collection: collectionParam, Key: RandString(keyLength)})
+		keys = append(keys, shim.StateKey{Collection: collectionParam, Key: RandString(keyLengthParam)})
 
 		// Use RandString one more time to be consistent with putManyMarbles, which invokes RandString 2 times
 		// and get the same keys as were written in put operation
-		_ = RandString(keyLength)
+		_ = RandString(keyLengthParam)
 	}
 
 	var start time.Time
@@ -396,7 +422,8 @@ func (t *SimpleChaincode) getManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 		verboseMsg += fmt.Sprintf("useBatchAPI: %t, Seed: %d", useBatchAPI, seedParam)
 	}
 
-	res := fmt.Sprintf("Get state queried: getting %d entries from the ledger takes %s %s", keyQty, duration.String(), verboseMsg)
+	// res := fmt.Sprintf("Get state queried: getting %d entries from the ledger takes %s %s", keyQty, duration.String(), verboseMsg)
+	res := fmt.Sprintf(`GetState:{"method":"get","entries":%d,"millis":%d,"keylen":%d,"batchapi":%t,"collection":"%s","seed":%d} %s`, keyQty, duration.Milliseconds(), keyLengthParam, useBatchAPI, collectionParam, seedParam, verboseMsg)
 
 	return shim.Success([]byte(res))
 }
@@ -417,6 +444,7 @@ func (t *SimpleChaincode) delManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 	var verboseFlag bool
 	var useBatchAPI bool = true
 	var seedParam int
+	var keyLengthParam int
 	var collectionParam string
 
 	// check for verbose param
@@ -444,15 +472,25 @@ func (t *SimpleChaincode) delManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 		collectionParam = args[indx+1]
 	}
 
+	// check for keyLength param
+	if indx := find(args, "keylength"); indx != -1 && indx+1 < len(args) {
+		keyLengthParam, err = strconv.Atoi(args[indx+1])
+		if err != nil {
+			keyLengthParam = defaultKeyLength
+		}
+	} else {
+		keyLengthParam = defaultKeyLength
+	}
+
 	RandReset(seedParam)
 
 	keys := make([]shim.StateKey, 0)
 	for i := 0; i < keyQty; i++ {
-		keys = append(keys, shim.StateKey{Collection: collectionParam, Key: RandString(keyLength)})
+		keys = append(keys, shim.StateKey{Collection: collectionParam, Key: RandString(keyLengthParam)})
 
 		// Use RandString one more time to be consistent with putManyMarbles, which invokes RandString 2 times
 		// and get the same keys as were written in put operation
-		_ = RandString(keyLength)
+		_ = RandString(keyLengthParam)
 	}
 
 	var start time.Time
@@ -504,9 +542,130 @@ func (t *SimpleChaincode) delManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 		verboseMsg = fmt.Sprintf("useBatchAPI: %t, Collection: `%s`, Seed: %d, Keys: %s", useBatchAPI, collectionParam, seedParam, strings.Join(keysStr, ", "))
 	}
 
-	res := fmt.Sprintf("Del state invoked: deleting %d entries from the ledger takes %s %s", keyQty, duration.String(), verboseMsg)
+	// res := fmt.Sprintf("Del state invoked: deleting %d entries from the ledger takes %s %s", keyQty, duration.String(), verboseMsg)
+	res := fmt.Sprintf(`DelState:{"method":"del","entries":%d,"millis":%d,"keylen":%d,"batchapi":%t,"collection":"%s","seed":%d} %s`, keyQty, duration.Milliseconds(), keyLengthParam, useBatchAPI, collectionParam, seedParam, verboseMsg)
 
 	return shim.Success([]byte(res))
+}
+
+// ============================================================
+// putRange - put many objects using BatchAPI (there is no PutStateByRange function in fabric)
+// 	This function sets state objects which later will be queried by getRange (using GetStateByRange or BatchAPI)
+// ============================================================
+func (t *SimpleChaincode) putRange(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// startKey := "OBJ0"
+	// endkey := "OBJ5000"
+	objectsNum := 4000
+
+	RandReset(1)
+
+	valuesToPut := make([]shim.StateKV, 0)
+	for i := 0; i <= objectsNum; i++ {
+		valuesToPut = append(valuesToPut, shim.StateKV{
+			Collection: "",
+			Key:        fmt.Sprintf("OBJ%d", i),
+			Value:      []byte(fmt.Sprintf(`{"test":"object","message":"hello developer!","id":"%d"}`, i)),
+		})
+	}
+
+	start := time.Now()
+	err := stub.PutStateBatch(valuesToPut)
+	duration := time.Since(start)
+
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	res := fmt.Sprintf(`PutRange:{"method":"putrange","entries":%d,"millis":%d,"batchapi":true}`, objectsNum+1, duration.Milliseconds())
+
+	return shim.Success([]byte(res))
+}
+
+// ============================================================
+// getRange - queryies many objects using GetStateByRange
+// ============================================================
+func (t *SimpleChaincode) getRange(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	startkey := "OBJ0"
+	endkey := "OBJ4000"
+
+	verboseFlag := false
+	useBatchAPI := true
+	// check for nobatchapi param
+	if indx := find(args, "nobatchapi"); indx != -1 {
+		useBatchAPI = false
+	}
+
+	// check for verbose param
+	if find(args, "verbose") != -1 {
+		verboseFlag = true
+	}
+
+	stateKeys := make([]shim.StateKey, 0)
+
+	startInt, _ := strconv.Atoi(startkey[3:])
+	endInt, _ := strconv.Atoi(endkey[3:])
+	for i := startInt; i <= endInt; i++ {
+		stateKeys = append(stateKeys, shim.StateKey{
+			Key:        fmt.Sprintf("OBJ%d", i),
+			Collection: "",
+		})
+	}
+
+	var start time.Time
+	var duration time.Duration
+	var resKV []shim.StateKV
+	var err error
+
+	if useBatchAPI {
+		start = time.Now()
+		resKV, err = stub.GetStateBatch(stateKeys)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		duration = time.Since(start)
+	} else {
+		resKV = make([]shim.StateKV, 0)
+		start = time.Now()
+		iterator, err := stub.GetStateByRange(startkey, endkey)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		defer iterator.Close()
+
+		for iterator.HasNext() {
+			queryResp, err := iterator.Next()
+			if err != nil {
+				return shim.Error(err.Error())
+			}
+
+			resKV = append(resKV, shim.StateKV{
+				Key:        queryResp.Key,
+				Collection: queryResp.Namespace,
+				Value:      queryResp.Value,
+			})
+		}
+		duration = time.Since(start)
+	}
+
+	var verbose string
+	if verboseFlag {
+		var verboseMsg strings.Builder
+		verboseMsg.WriteString(",verbose:{")
+
+		for _, kv := range resKV {
+			fmt.Fprintf(&verboseMsg, `"%s":"%s",`, kv.Key, kv.Value)
+		}
+
+		toStr := verboseMsg.String()
+		verbose = toStr[0 : len(toStr)-1]
+		verbose += "}"
+	}
+
+	res := fmt.Sprintf(`GetRange:{"method":"getrange","entries":%d,"millis":%d,"batchapi":%t%s}`, len(resKV), duration.Milliseconds(), useBatchAPI, verbose)
+
+	return shim.Success([]byte(res))
+
 }
 
 // ============================================================

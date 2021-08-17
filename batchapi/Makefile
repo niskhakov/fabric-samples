@@ -1,27 +1,37 @@
-.PHONY: start-network 
+.PHONY: start
 
-start: start-network
-stop: stop-network
+start: clean-wallet | run-leveldb cli-init
+start-couch: clean-wallet | run-couchdb cli-init
 
-start-network:
-	@cd ../first-network && ./byfn.sh up -c mychannel
+run-leveldb:
+	@cd ../first-network && echo y | ./byfn.sh down && echo y | ./byfn.sh up -c mychannel -a -n
 
-stop-network:
+run-couchdb:
+	@cd ../first-network && echo y | ./byfn.sh down && echo y | ./byfn.sh up -c mychannel -a -n -s couchdb
+
+clean-wallet:
+	@cd app/ && rm -rf wallet
+	@cd app/ && cp -R wallet-tmpl/ wallet/
+
+stop:
 	@cd ../first-network && ./byfn.sh down
 
 copy:
 	@docker cp . cli:/opt/gopath/src/github.com/hyperledger/fabric/peer/
 
+prestart-app:
+	@cd app/ && nvm use && node enrollAdmin.js && node registerUser.js
+
 cli: copy
 	@docker exec -it cli bash
 
 cli-install:
-	@./cli_installCC.sh
+	@docker exec cli bash ./cli_installCC.sh
 
 cli-instantiate:
-	@./cli_instantiateCC.sh
+	@docker exec cli bash ./cli_instantiateCC.sh
 
-cli-init: cli-install cli-instantiate
+cli-init: copy cli-install cli-instantiate
 
 cli-org1:
 	@./cli_org1.sh
@@ -35,13 +45,21 @@ cli-batch:
 cli-stress-put:
 	@./cli-stressPut.sh 100
 
-stress-scenario:
+stress:
+	docker exec cli sh -c "./stress_scenario.sh"
+
+cli-stress:
 	@./stress_scenario.sh
 
-stress: cli-init stress-scenario
+logs:
+	@cd ../first-network && 
 	
 fabric-build:
 	@cd ${GOPATH}/src/github.com/hyperledger/fabric/ && $(MAKE) dist-clean docker-clean native docker docker-thirdparty
+
+fabric-clean:
+	@cd ${GOPATH}/src/github.com/hyperledger/fabric/ && $(MAKE) clean
+
 
 fabric-test:
 	@cd ${GOPATH}/src/github.com/hyperledger/fabric/ && $(MAKE) unit-test-clean unit-test

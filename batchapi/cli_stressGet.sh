@@ -13,14 +13,15 @@ SEED="1"
 EXTRA_ARGS=""
 
 usage() {
-  echo "Usage: ${0} [-vn] [-c COLLECTION] [-s SEED_NUM] NUMBER" >&2
+  echo "Usage: ${0} [-vn] [-c COLLECTION] [-s SEED_NUM] [-k KEY_LENGTH] NUMBER" >&2
   echo "Queries getManyMarblesBatch chaincode method which gets NUMBER randomly generated keys from the ledger via one batch operation" >&2
   echo "  -v             Verbose mode - chaincode returns generated key/values and parameters" >&2
   echo "  -n             NoBatchAPI mode - for every key will be invoked GetState/GetPrivateData instead of BatchAPI" >&2
   echo "  -s SEED_NUM    Specify seed value to reproduce randomly generated keys" >&2
   echo "  -c COLLECTION  Specify private collection to get key-values" >&2
+  echo "  -k KEY_LENGTH  Specify key length to get from the ledger" >&2
 }
-while getopts s:vnc: OPTION; do
+while getopts s:vnc:k: OPTION; do
   case "${OPTION}" in
     s)
       SEED="${OPTARG}"
@@ -38,6 +39,10 @@ while getopts s:vnc: OPTION; do
       COLLECTION="${OPTARG}"
       EXTRA_ARGS="${EXTRA_ARGS},\"collection\",\"${COLLECTION}\""
       ;;
+    k)
+      KEYLEN="${OPTARG}"
+      EXTRA_ARGS="${EXTRA_ARGS},\"keylength\",\"${KEYLEN}\""
+      ;;
     ?)
       usage
       exit 1
@@ -53,6 +58,6 @@ fi
 
 NUM=$1
 
-set -x
+# set -x
 peer chaincode query -C mychannel -n marblesp -c "{\"Args\":[\"getManyMarblesBatch\",\"${NUM}\"${EXTRA_ARGS}]}"
-set +x
+# set +x
