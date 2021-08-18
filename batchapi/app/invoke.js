@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { FileSystemWallet, Gateway } = require('fabric-network');
+const { FileSystemWallet, Gateway, DefaultEventHandlerStrategies } = require('fabric-network');
 const path = require('path');
 const fs = require('fs');
 
@@ -32,7 +32,13 @@ async function main() {
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccpPath, { 
+            wallet, 
+            identity: 'user1', 
+            discovery: { enabled: true, asLocalhost: true },
+            eventHandlerOptions: {
+                strategy: DefaultEventHandlerStrategies.NETWORK_SCOPE_ALLFORTX
+            }});
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('mychannel');
@@ -40,20 +46,25 @@ async function main() {
         // Get the contract from the network.
         const contract = network.getContract('marblesp');
 
-        await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, 1, true)
-
-        // for (let testId = 1; testId <=4; testId++) {
-        //     await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 1000)
+        // for (let testId = 1; testId <= 10; testId++) {
+        //     await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, 1, false)
         // }
 
-        // for (let testId = 1; testId <= 4; testId++) {
-        //     await doStressTestPutWithIncreasingKeyNumber(contract, testId, 100, 300, 1000)
+        for (let testId = 1; testId <= 10; testId++) {
+            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, false)
+        }
+
+        // for (let testId = 1; testId <= 10; testId++) {
+        //     await doStressTestPutWithIncreasingKeyNumber(contract, testId, 100, 300, 10000)
+        //     await doStressTestPutWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, false)
         // }
 
         // const repeatNum = 10
-        // for (let entries = 100; entries <= 1000; entries += 300) {
+        // for (let entries = 100; entries <= 10000; entries += 300) {
         //     await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum)
+        //     await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum, defaultKeyLen, false)
         // }
+
 
         // Disconnect from the gateway.
         await gateway.disconnect();
@@ -88,11 +99,11 @@ async function doStressTestPutWithSameKeyNumberNtimes(contract, entries, nTimes,
     logFile.end()
 }
 
-async function doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, start, step, end, keylength = defaultKeyLen, seed = 10, useBatchAPI = true, collection = '') {
+async function doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, start, step, end, keylength = defaultKeyLen, useBatchAPI = true, seed = 10, collection = '') {
     const logPath = path.resolve(__dirname, "..", stressLogsDir, `stressPutAndDel${testId}.KeyLen${keylength}.log`)
     const logFile = fs.createWriteStream(logPath, {flags: 'a'})
     for (let entries = start; entries <= end; entries += step) {
-        let buf = await contract.submitTransaction('putManyMarblesBatch', `${entries}`, ...processOptions(keylength, useBatchAPI, seed, collection));
+        let buf = await contract.submitTransaction('putManyMarblesBatch', `${entries}`, ...processOptions(keylength, true, seed, collection));
         let bufStr = buf.toString()
         let delBuf = await contract.submitTransaction('delManyMarblesBatch', `${entries}`, ...processOptions(keylength, useBatchAPI, seed, collection))
         let delStr = delBuf.toString()
