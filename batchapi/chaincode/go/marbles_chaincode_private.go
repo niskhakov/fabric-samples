@@ -553,23 +553,28 @@ func (t *SimpleChaincode) delManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 // 	This function sets state objects which later will be queried by getRange (using GetStateByRange or BatchAPI)
 // ============================================================
 func (t *SimpleChaincode) putRange(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	// startKey := "OBJ0"
-	// endkey := "OBJ5000"
-	objectsNum := 4000
+	if len(args) < 1 {
+		return shim.Error(fmt.Errorf("Incorrect arguments. Expecting at least one argument").Error())
+	}
 
-	RandReset(1)
+	keyQty, err := strconv.Atoi(args[0]) // number of keys to read - required
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	objectsNum := keyQty
 
 	valuesToPut := make([]shim.StateKV, 0)
-	for i := 0; i <= objectsNum; i++ {
+	for i := 0; i < objectsNum; i++ {
 		valuesToPut = append(valuesToPut, shim.StateKV{
 			Collection: "",
-			Key:        fmt.Sprintf("OBJ%d", i),
+			Key:        fmt.Sprintf("OBJ%05d", i),
 			Value:      []byte(fmt.Sprintf(`{"test":"object","message":"hello developer!","id":"%d"}`, i)),
 		})
 	}
 
 	start := time.Now()
-	err := stub.PutStateBatch(valuesToPut)
+	err = stub.PutStateBatch(valuesToPut)
 	duration := time.Since(start)
 
 	if err != nil {
@@ -585,8 +590,17 @@ func (t *SimpleChaincode) putRange(stub shim.ChaincodeStubInterface, args []stri
 // getRange - queryies many objects using GetStateByRange
 // ============================================================
 func (t *SimpleChaincode) getRange(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	startkey := "OBJ0"
-	endkey := "OBJ4000"
+	if len(args) < 1 {
+		return shim.Error(fmt.Errorf("Incorrect arguments. Expecting at least one argument").Error())
+	}
+
+	keyQty, err := strconv.Atoi(args[0]) // number of keys to read - required
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	startkey := fmt.Sprintf("OBJ%05d", 0)
+	endkey := fmt.Sprintf("OBJ%05d", keyQty)
 
 	verboseFlag := false
 	useBatchAPI := true
@@ -604,9 +618,9 @@ func (t *SimpleChaincode) getRange(stub shim.ChaincodeStubInterface, args []stri
 
 	startInt, _ := strconv.Atoi(startkey[3:])
 	endInt, _ := strconv.Atoi(endkey[3:])
-	for i := startInt; i <= endInt; i++ {
+	for i := startInt; i < endInt; i++ {
 		stateKeys = append(stateKeys, shim.StateKey{
-			Key:        fmt.Sprintf("OBJ%d", i),
+			Key:        fmt.Sprintf("OBJ%05d", i),
 			Collection: "",
 		})
 	}
@@ -614,7 +628,6 @@ func (t *SimpleChaincode) getRange(stub shim.ChaincodeStubInterface, args []stri
 	var start time.Time
 	var duration time.Duration
 	var resKV []shim.StateKV
-	var err error
 
 	if useBatchAPI {
 		start = time.Now()
@@ -842,4 +855,13 @@ func find(a []string, x string) int {
 		}
 	}
 	return -1
+}
+
+func countDigits(number int) int {
+	count := 0
+	for number != 0 {
+		number /= 10
+		count += 1
+	}
+	return count
 }
