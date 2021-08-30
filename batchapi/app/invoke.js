@@ -46,32 +46,32 @@ async function main() {
         // Get the contract from the network.
         const contract = network.getContract('marblesp');
 
-        // for (let testId = 1; testId <= 20; testId++) {
-        //     await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 100, 300, 10000, false)
-        //     await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 5, 5, 100, false)
-        //     await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 100, 300, 10000, true)
-        //     await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 5, 5, 100, true)
-        // }
-
-        // for (let testId = 1; testId <= 10; testId++) {
-        //     await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, false)
-        //     await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, true)
-        //     await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 5, 5, 100, defaultKeyLen, false)
-        //     await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 5, 5, 100, defaultKeyLen, true)
-        // }
-
-        for (let testId = 1; testId <= 10; testId++) {
-            // await doStressTestPutWithIncreasingKeyNumber(contract, testId, 100, 300, 10000)
-            // await doStressTestPutWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, false)
-            // await doStressTestPutWithIncreasingKeyNumber(contract, testId, 10, 10, 100)
-            // await doStressTestPutWithIncreasingKeyNumber(contract, testId, 10, 10, 100, defaultKeyLen, false)
+        for (let testId = 1; testId <= 20; testId++) {
+            await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 100, 300, 10000, false)
+            await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 5, 5, 100, false)
+            await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 100, 300, 10000, true)
+            await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 5, 5, 100, true)
         }
 
-        // const repeatNum = 10
-        // for (let entries = 100; entries <= 10000; entries += 300) {
-        //     await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum)
-        //     await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum, defaultKeyLen, false)
-        // }
+        for (let testId = 1; testId <= 10; testId++) {
+            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, false)
+            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, true)
+            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 5, 5, 100, defaultKeyLen, false)
+            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 5, 5, 100, defaultKeyLen, true)
+        }
+
+        for (let testId = 1; testId <= 10; testId++) {
+            await doStressTestPutWithIncreasingKeyNumber(contract, testId, 100, 300, 10000)
+            await doStressTestPutWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, false)
+            await doStressTestPutWithIncreasingKeyNumber(contract, testId, 10, 10, 100)
+            await doStressTestPutWithIncreasingKeyNumber(contract, testId, 10, 10, 100, defaultKeyLen, false)
+        }
+
+        const repeatNum = 10
+        for (let entries = 100; entries <= 10000; entries += 300) {
+            await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum)
+            await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum, defaultKeyLen, false)
+        }
 
         const repeatNum = 10
         for (let entries = 10; entries <= 100; entries += 10) {

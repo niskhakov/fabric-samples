@@ -1,6 +1,6 @@
 [
  {
-   "name": "collectionMarbles",
+   "name": "collectionObjects",
    "policy": "OR('Org1MSP.member', 'Org2MSP.member')",
    "requiredPeerCount": 0,
    "maxPeerCount": 3,
@@ -8,7 +8,7 @@
    "memberOnlyRead": true
 },
  {
-   "name": "collectionMarblePrivateDetails",
+   "name": "collectionPrivateObjects",
    "policy": "OR('Org1MSP.member')",
    "requiredPeerCount": 0,
    "maxPeerCount": 3,

@@ -21,7 +21,7 @@
 {"method":"put","entries":55,"millis":1,"keylen":20,"batchapi":true,"collection":"","seed":10}
 {"method":"del","entries":55,"millis":103,"keylen":20,"batchapi":false,"collection":"","seed":10}
 {"method":"put","entries":60,"millis":1,"keylen":20,"batchapi":true,"collection":"","seed":10}
-{"method":"del","entries":60,"millis":1097,"keylen":20,"batchapi":false,"collection":"","seed":10}
+{"method":"del","entries":60,"millis":102,"keylen":20,"batchapi":false,"collection":"","seed":10}
 {"method":"put","entries":65,"millis":2,"keylen":20,"batchapi":true,"collection":"","seed":10}
 {"method":"del","entries":65,"millis":70,"keylen":20,"batchapi":false,"collection":"","seed":10}
 {"method":"put","entries":70,"millis":2,"keylen":20,"batchapi":true,"collection":"","seed":10}
@@ -35,6 +35,6 @@
 {"method":"put","entries":90,"millis":2,"keylen":20,"batchapi":true,"collection":"","seed":10}
 {"method":"del","entries":90,"millis":85,"keylen":20,"batchapi":false,"collection":"","seed":10}
 {"method":"put","entries":95,"millis":3,"keylen":20,"batchapi":true,"collection":"","seed":10}
-{"method":"del","entries":95,"millis":735,"keylen":20,"batchapi":false,"collection":"","seed":10}
+{"method":"del","entries":95,"millis":124,"keylen":20,"batchapi":false,"collection":"","seed":10}
 {"method":"put","entries":100,"millis":1,"keylen":20,"batchapi":true,"collection":"","seed":10}
 {"method":"del","entries":100,"millis":191,"keylen":20,"batchapi":false,"collection":"","seed":10}

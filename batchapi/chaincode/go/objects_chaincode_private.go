@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -51,20 +50,6 @@ func RandString(length int) string {
 	return RandStringWithCharset(length, charset)
 }
 
-type marble struct {
-	ObjectType string `json:"docType"` //docType is used to distinguish the various types of objects in state database
-	Name       string `json:"name"`    //the fieldtags are needed to keep case from bouncing around
-	Color      string `json:"color"`
-	Size       int    `json:"size"`
-	Owner      string `json:"owner"`
-}
-
-type marblePrivateDetails struct {
-	ObjectType string `json:"docType"` //docType is used to distinguish the various types of objects in state database
-	Name       string `json:"name"`    //the fieldtags are needed to keep case from bouncing around
-	Price      int    `json:"price"`
-}
-
 // ===================================================================================
 // Main
 // ===================================================================================
@@ -89,30 +74,21 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 
 	// Handle different functions
 	switch function {
-	case "initMarble":
-		//create a new marble
-		return t.initMarble(stub, args)
-	case "readMarble":
-		//read a marble
-		return t.readMarble(stub, args)
-	case "readMarblePrivateDetails":
-		//read a marble private details
-		return t.readMarblePrivateDetails(stub, args)
-	case "getMarblesBatch":
-		//get multiple marbles via one request
-		return t.getMarblesBatch(stub, args)
-	case "getManyMarblesBatch":
-		//get multiple randomly selected marbles via one request
-		return t.getManyMarblesBatch(stub, args)
-	case "putMarblesBatch":
-		//put multiple marbles via one request
-		return t.putMarblesBatch(stub, args)
-	case "putManyMarblesBatch":
-		// stress test putting multiple marbles via one request
-		return t.putManyMarblesBatch(stub, args)
-	case "delManyMarblesBatch":
-		// stress test deleting multiple marbles via one request
-		return t.delManyMarblesBatch(stub, args)
+	case "getObjectsBatch":
+		//get multiple objects via one request
+		return t.getObjectsBatch(stub, args)
+	case "getManyObjectsBatch":
+		//get multiple randomly selected objects via one request
+		return t.getManyObjectsBatch(stub, args)
+	case "putObjectsBatch":
+		//put multiple objects via one request
+		return t.putObjectsBatch(stub, args)
+	case "putManyObjectsBatch":
+		// stress test putting multiple objects via one request
+		return t.putManyObjectsBatch(stub, args)
+	case "delManyObjectsBatch":
+		// stress test deleting multiple objects via one request
+		return t.delManyObjectsBatch(stub, args)
 	case "putRange":
 		return t.putRange(stub, args)
 	case "getRange":
@@ -125,9 +101,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 }
 
 // ============================================================
-// putMarblesBatch - put marbles info via one network request
+// putObjectsBatch - put objects info via one network request
 // ============================================================
-func (t *SimpleChaincode) putMarblesBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *SimpleChaincode) putObjectsBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if len(args) < 2 {
 		return shim.Error(fmt.Errorf("Incorrect arguments. Expecting at least a key and a value").Error())
 	}
@@ -158,9 +134,9 @@ func (t *SimpleChaincode) putMarblesBatch(stub shim.ChaincodeStubInterface, args
 }
 
 // ============================================================
-// putManyMarblesBatch - stress test putting random (with seed) marbles info via one network request
+// putManyObjectsBatch - stress test putting random (with seed) objects info via one network request
 // ============================================================
-func (t *SimpleChaincode) putManyMarblesBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *SimpleChaincode) putManyObjectsBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	if len(args) < 1 {
 		return shim.Error(fmt.Errorf("Incorrect arguments. Expecting at least one argument - number of random keys/value to write in the ledger").Error())
@@ -272,9 +248,9 @@ func (t *SimpleChaincode) putManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 }
 
 // ============================================================
-// getMarblesBatch - get marbles via one network request
+// getObjectsBatch - get objects via one network request
 // ============================================================
-func (t *SimpleChaincode) getMarblesBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *SimpleChaincode) getObjectsBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if len(args) < 1 {
 		return shim.Error(fmt.Errorf("Incorrect arguments. Expecting at least one key").Error())
 	}
@@ -301,9 +277,9 @@ func (t *SimpleChaincode) getMarblesBatch(stub shim.ChaincodeStubInterface, args
 }
 
 // ============================================================
-// getManyMarblesBatch - get many randomly selected (with seed) marbles via one network request
+// getManyObjectsBatch - get many randomly selected (with seed) objects via one network request
 // ============================================================
-func (t *SimpleChaincode) getManyMarblesBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *SimpleChaincode) getManyObjectsBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if len(args) < 1 {
 		return shim.Error(fmt.Errorf("Incorrect arguments. Expecting at least one argument").Error())
 	}
@@ -360,7 +336,7 @@ func (t *SimpleChaincode) getManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 	for i := 0; i < keyQty; i++ {
 		keys = append(keys, shim.StateKey{Collection: collectionParam, Key: RandString(keyLengthParam)})
 
-		// Use RandString one more time to be consistent with putManyMarbles, which invokes RandString 2 times
+		// Use RandString one more time to be consistent with putManyObjects, which invokes RandString 2 times
 		// and get the same keys as were written in put operation
 		_ = RandString(keyLengthParam)
 	}
@@ -429,9 +405,9 @@ func (t *SimpleChaincode) getManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 }
 
 // ============================================================
-// delManyMarblesBatch - deletes many randomly selected marbles (with seed) via one network request
+// delManyObjectsBatch - deletes many randomly selected Objects (with seed) via one network request
 // ============================================================
-func (t *SimpleChaincode) delManyMarblesBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *SimpleChaincode) delManyObjectsBatch(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if len(args) < 1 {
 		return shim.Error(fmt.Errorf("Incorrect arguments. Expecting at least one argument").Error())
 	}
@@ -488,7 +464,7 @@ func (t *SimpleChaincode) delManyMarblesBatch(stub shim.ChaincodeStubInterface, 
 	for i := 0; i < keyQty; i++ {
 		keys = append(keys, shim.StateKey{Collection: collectionParam, Key: RandString(keyLengthParam)})
 
-		// Use RandString one more time to be consistent with putManyMarbles, which invokes RandString 2 times
+		// Use RandString one more time to be consistent with putManyObjects, which invokes RandString 2 times
 		// and get the same keys as were written in put operation
 		_ = RandString(keyLengthParam)
 	}
@@ -681,173 +657,6 @@ func (t *SimpleChaincode) getRange(stub shim.ChaincodeStubInterface, args []stri
 
 }
 
-// ============================================================
-// initMarble - create a new marble, store into chaincode state
-// ============================================================
-func (t *SimpleChaincode) initMarble(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var err error
-
-	type marbleTransientInput struct {
-		Name  string `json:"name"` //the fieldtags are needed to keep case from bouncing around
-		Color string `json:"color"`
-		Size  int    `json:"size"`
-		Owner string `json:"owner"`
-		Price int    `json:"price"`
-	}
-
-	// ==== Input sanitation ====
-	fmt.Println("- start init marble")
-
-	if len(args) != 0 {
-		return shim.Error("Incorrect number of arguments. Private marble data must be passed in transient map.")
-	}
-
-	transMap, err := stub.GetTransient()
-	if err != nil {
-		return shim.Error("Error getting transient: " + err.Error())
-	}
-
-	if _, ok := transMap["marble"]; !ok {
-		return shim.Error("marble must be a key in the transient map")
-	}
-
-	if len(transMap["marble"]) == 0 {
-		return shim.Error("marble value in the transient map must be a non-empty JSON string")
-	}
-
-	var marbleInput marbleTransientInput
-	err = json.Unmarshal(transMap["marble"], &marbleInput)
-	if err != nil {
-		return shim.Error("Failed to decode JSON of: " + string(transMap["marble"]))
-	}
-
-	if len(marbleInput.Name) == 0 {
-		return shim.Error("name field must be a non-empty string")
-	}
-	if len(marbleInput.Color) == 0 {
-		return shim.Error("color field must be a non-empty string")
-	}
-	if marbleInput.Size <= 0 {
-		return shim.Error("size field must be a positive integer")
-	}
-	if len(marbleInput.Owner) == 0 {
-		return shim.Error("owner field must be a non-empty string")
-	}
-	if marbleInput.Price <= 0 {
-		return shim.Error("price field must be a positive integer")
-	}
-
-	// ==== Check if marble already exists ====
-	marbleAsBytes, err := stub.GetPrivateData("collectionMarbles", marbleInput.Name)
-	if err != nil {
-		return shim.Error("Failed to get marble: " + err.Error())
-	} else if marbleAsBytes != nil {
-		fmt.Println("This marble already exists: " + marbleInput.Name)
-		return shim.Error("This marble already exists: " + marbleInput.Name)
-	}
-
-	// ==== Create marble object, marshal to JSON, and save to state ====
-	marble := &marble{
-		ObjectType: "marble",
-		Name:       marbleInput.Name,
-		Color:      marbleInput.Color,
-		Size:       marbleInput.Size,
-		Owner:      marbleInput.Owner,
-	}
-	marbleJSONasBytes, err := json.Marshal(marble)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
-	// === Save marble to state ===
-	err = stub.PutPrivateData("collectionMarbles", marbleInput.Name, marbleJSONasBytes)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
-	// ==== Create marble private details object with price, marshal to JSON, and save to state ====
-	marblePrivateDetails := &marblePrivateDetails{
-		ObjectType: "marblePrivateDetails",
-		Name:       marbleInput.Name,
-		Price:      marbleInput.Price,
-	}
-	marblePrivateDetailsBytes, err := json.Marshal(marblePrivateDetails)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	err = stub.PutPrivateData("collectionMarblePrivateDetails", marbleInput.Name, marblePrivateDetailsBytes)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
-	//  ==== Index the marble to enable color-based range queries, e.g. return all blue marbles ====
-	//  An 'index' is a normal key/value entry in state.
-	//  The key is a composite key, with the elements that you want to range query on listed first.
-	//  In our case, the composite key is based on indexName~color~name.
-	//  This will enable very efficient state range queries based on composite keys matching indexName~color~*
-	indexName := "color~name"
-	colorNameIndexKey, err := stub.CreateCompositeKey(indexName, []string{marble.Color, marble.Name})
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	//  Save index entry to state. Only the key name is needed, no need to store a duplicate copy of the marble.
-	//  Note - passing a 'nil' value will effectively delete the key from state, therefore we pass null character as value
-	value := []byte{0x00}
-	stub.PutPrivateData("collectionMarbles", colorNameIndexKey, value)
-
-	// ==== Marble saved and indexed. Return success ====
-	fmt.Println("- end init marble")
-	return shim.Success(nil)
-}
-
-// ===============================================
-// readMarble - read a marble from chaincode state
-// ===============================================
-func (t *SimpleChaincode) readMarble(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var name, jsonResp string
-	var err error
-
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting name of the marble to query")
-	}
-
-	name = args[0]
-	valAsbytes, err := stub.GetPrivateData("collectionMarbles", name) //get the marble from chaincode state
-	if err != nil {
-		jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
-		return shim.Error(jsonResp)
-	} else if valAsbytes == nil {
-		jsonResp = "{\"Error\":\"Marble does not exist: " + name + "\"}"
-		return shim.Error(jsonResp)
-	}
-
-	return shim.Success(valAsbytes)
-}
-
-// ===============================================
-// readMarblereadMarblePrivateDetails - read a marble private details from chaincode state
-// ===============================================
-func (t *SimpleChaincode) readMarblePrivateDetails(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var name, jsonResp string
-	var err error
-
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting name of the marble to query")
-	}
-
-	name = args[0]
-	valAsbytes, err := stub.GetPrivateData("collectionMarblePrivateDetails", name) //get the marble private details from chaincode state
-	if err != nil {
-		jsonResp = "{\"Error\":\"Failed to get private details for " + name + ": " + err.Error() + "\"}"
-		return shim.Error(jsonResp)
-	} else if valAsbytes == nil {
-		jsonResp = "{\"Error\":\"Marble private details does not exist: " + name + "\"}"
-		return shim.Error(jsonResp)
-	}
-
-	return shim.Success(valAsbytes)
-}
-
 func find(a []string, x string) int {
 	for i, n := range a {
 		if x == n {
@@ -855,13 +664,4 @@ func find(a []string, x string) int {
 		}
 	}
 	return -1
-}
-
-func countDigits(number int) int {
-	count := 0
-	for number != 0 {
-		number /= 10
-		count += 1
-	}
-	return count
 }

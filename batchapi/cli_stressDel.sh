@@ -14,7 +14,7 @@ EXTRA_ARGS=""
 
 usage() {
   echo "Usage: ${0} [-vn] [-c COLLECTION] [-s SEED_NUM] [-k KEY_LENGTH] NUMBER" >&2
-  echo "Invokes delManyMarblesBatch chaincode method where NUMBER randomly generated keys is deleted from the ledger via one batch operation" >&2
+  echo "Invokes delManyObjectsBatch chaincode method where NUMBER randomly generated keys is deleted from the ledger via one batch operation" >&2
   echo "  -v             Verbose mode - chaincode returns generated keys to delete and parameters" >&2
   echo "  -n             NoBatchAPI mode - for every key will be invoked DelState/DelPrivateData instead of BatchAPI" >&2
   echo "  -s SEED_NUM    Specify seed value to reproduce randomly generated keys" >&2
@@ -60,5 +60,5 @@ fi
 NUM=$1
 
 # set -x
-peer chaincode invoke -o orderer.example.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n marblesp -c "{\"Args\":[\"delManyMarblesBatch\",\"${NUM}\"${EXTRA_ARGS}]}"
+peer chaincode invoke -o orderer.example.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n batchapicc -c "{\"Args\":[\"delManyObjectsBatch\",\"${NUM}\"${EXTRA_ARGS}]}"
 # set +x

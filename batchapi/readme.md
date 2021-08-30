@@ -2,14 +2,15 @@
 
 ## First Steps
 
-- `make / make start-network`
-- `make cli` <- you will be in cli docker container
-- `make cli-init` <- install and instantiate test chaincode
-- `make cli-batch` <- invoke and query batch methods
-- `make stress` <- run stress test scenario with putting, getting, deleting up to 10000 elements 
+- `make / make start` <- run network and install example chaincode
+- `cd app` <- go to node app
+- `nvm use` <- if you have nvm (node version manager) installed, it will download specific node version to make node app running, if you haven't nvm, please use node version provided in `.nvmrc` file
+- `npm install` - install dependencies
+- `node enrollAdmin.js && node registerUser.js` - to fill wallet with credentials
+- `node invoke.js` <- run stress test scenario with putting, getting, deleting elements 
 
 ## More Advanced
-Files: `cli_stressGet.sh`, `cli_stressPut.sh`, `cli_stressDel.sh` contain logic of invoking chaincode BatchAPI mathods with provided params, such as number of keys, random seed, verbosity, not using batch api, and using private collections. See `--help`. 
+Files: `cli_stressGet.sh`, `cli_stressPut.sh`, `cli_stressDel.sh` contain logic of invoking chaincode BatchAPI methods via CLI with provided params, such as number of keys, random seed, verbosity, not using batch api, and using private collections. See `--help`. 
 
 If you want to see used in chaincode keys and params, use `-v` flag to get this information.   
 
@@ -21,9 +22,8 @@ If you want to see private data collection results, use `-c COLLECTION_NAME` par
 
 ## Examples
 ```sh
-(user)$ make start-network
+(user)$ make start
 (user)$ make cli
-(cli) $ make cli-init   # Install and instantiate chaincode
 (cli) $ ./cli_stressPut.sh 1000 # Writes 1000 entries with random keys and values to the ledger
 (cli) $ ./cli_stressPut.sh -s 4 -c collectionMarbles 2000 # Writes 2000 key/values to the private collection: `collectionMarbles` with rand seed
 (cli) $ ./cli_stressPut.sh -n 1000 # Writes 1000 entries without using BatchAPI, for every entry PutState is called
@@ -31,14 +31,5 @@ If you want to see private data collection results, use `-c COLLECTION_NAME` par
 (cli) $ ./cli_stressGet.sh -v 100 # Queries ledger about 100 entries, which were written in previous request (if seed is same)
 (cli) $ ./cli_stressDel.sh -n 100 # Delete entries without using BatchAPI
 (cli) $ exit    # Exit the `cli` docker container
-(user)$ make stop-network
-```
-
-You can see put/get/del duration times by running `stress_scenario.sh` in cli container (make cli)
-```sh
-(user)$ make start-network
-(user)$ make cli
-(cli) $ make stress # or make cli-init stress-scenario 
-(cli) $ exit
-(user)$ make stop-network
+(user)$ make stop
 ```

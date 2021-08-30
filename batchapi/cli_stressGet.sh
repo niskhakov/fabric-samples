@@ -14,7 +14,7 @@ EXTRA_ARGS=""
 
 usage() {
   echo "Usage: ${0} [-vn] [-c COLLECTION] [-s SEED_NUM] [-k KEY_LENGTH] NUMBER" >&2
-  echo "Queries getManyMarblesBatch chaincode method which gets NUMBER randomly generated keys from the ledger via one batch operation" >&2
+  echo "Queries getManyObjectsBatch chaincode method which gets NUMBER randomly generated keys from the ledger via one batch operation" >&2
   echo "  -v             Verbose mode - chaincode returns generated key/values and parameters" >&2
   echo "  -n             NoBatchAPI mode - for every key will be invoked GetState/GetPrivateData instead of BatchAPI" >&2
   echo "  -s SEED_NUM    Specify seed value to reproduce randomly generated keys" >&2
@@ -59,5 +59,5 @@ fi
 NUM=$1
 
 # set -x
-peer chaincode query -C mychannel -n marblesp -c "{\"Args\":[\"getManyMarblesBatch\",\"${NUM}\"${EXTRA_ARGS}]}"
+peer chaincode query -C mychannel -n batchapicc -c "{\"Args\":[\"getManyObjectsBatch\",\"${NUM}\"${EXTRA_ARGS}]}"
 # set +x
