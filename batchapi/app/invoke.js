@@ -12,6 +12,7 @@ const stressLogsDir = "stress_logs"
 const defaultKeyLen = 20
 const ccpPath = path.resolve(__dirname, '..', '..', 'first-network', 'connection-org1.json');
 
+// JS alternative to time.sleep()
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 async function main() {
@@ -44,20 +45,20 @@ async function main() {
         const network = await gateway.getNetwork('mychannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('marblesp');
+        const contract = network.getContract('batchapicc');
 
         for (let testId = 1; testId <= 20; testId++) {
             await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 100, 300, 10000, false)
             await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 5, 5, 100, false)
-            await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 100, 300, 10000, true)
-            await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 5, 5, 100, true)
+            await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 100, 300, 10000, false)
+            await doTestScenarioGetRangeQueryAndGetBatchAPIWithConstantEntries(contract, testId, 5, 5, 100, false)
         }
 
         for (let testId = 1; testId <= 10; testId++) {
             await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, false)
-            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, true)
+            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 100, 300, 10000, defaultKeyLen, false)
             await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 5, 5, 100, defaultKeyLen, false)
-            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 5, 5, 100, defaultKeyLen, true)
+            await doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, 5, 5, 100, defaultKeyLen, false)
         }
 
         for (let testId = 1; testId <= 10; testId++) {
@@ -67,13 +68,13 @@ async function main() {
             await doStressTestPutWithIncreasingKeyNumber(contract, testId, 10, 10, 100, defaultKeyLen, false)
         }
 
-        const repeatNum = 10
+        let repeatNum = 10
         for (let entries = 100; entries <= 10000; entries += 300) {
             await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum)
             await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum, defaultKeyLen, false)
         }
 
-        const repeatNum = 10
+        repeatNum = 10
         for (let entries = 10; entries <= 100; entries += 10) {
             await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum)
             await doStressTestPutWithSameKeyNumberNtimes(contract, entries, repeatNum, defaultKeyLen, false)
@@ -93,7 +94,7 @@ async function doStressTestPutWithIncreasingKeyNumber(contract, testId, start, s
     const logPath = path.resolve(__dirname, "..", stressLogsDir, `stressPut${testId}-${start}-${step}-${end}.KeyLen${keylength}.log`)
     const logFile = fs.createWriteStream(logPath, {flags: 'a'})
     for (let entries = start; entries <= end; entries += step) {
-        let buf = await contract.submitTransaction('putManyMarblesBatch', `${entries}`, ...processOptions(keylength, useBatchAPI, 10, collection));
+        let buf = await contract.submitTransaction('putManyObjectsBatch', `${entries}`, ...processOptions(keylength, useBatchAPI, 10, collection));
         let bufStr = buf.toString()
         logFile.write(bufStr.substring(bufStr.indexOf(":") + 1, bufStr.length - 1) + "\n")
         console.log(`Transaction has been submitted, result is: ${buf.toString()}`);
@@ -105,7 +106,7 @@ async function doStressTestPutWithSameKeyNumberNtimes(contract, entries, nTimes,
     const logPath = path.resolve(__dirname, "..", stressLogsDir, `stressPut${entries}Entries.KeyLen${keylength}.log`)
     const logFile = fs.createWriteStream(logPath, {flags: 'a'})
     for (let i = 0; i < nTimes; i += 1) {
-        let buf = await contract.submitTransaction('putManyMarblesBatch', `${entries}`, ...processOptions(keylength, useBatchAPI, 10, collection));
+        let buf = await contract.submitTransaction('putManyObjectsBatch', `${entries}`, ...processOptions(keylength, useBatchAPI, 10, collection));
         let bufStr = buf.toString()
         logFile.write(bufStr.substring(bufStr.indexOf(":") + 1, bufStr.length - 1) + "\n")
         console.log(`Transaction has been submitted, result is: ${buf.toString()}`);
@@ -117,9 +118,9 @@ async function doStressTestPutAndDelWithIncreasingKeyNumber(contract, testId, st
     const logPath = path.resolve(__dirname, "..", stressLogsDir, `stressPutAndDel${testId}-${start}-${step}-${end}.KeyLen${keylength}.log`)
     const logFile = fs.createWriteStream(logPath, {flags: 'a'})
     for (let entries = start; entries <= end; entries += step) {
-        let buf = await contract.submitTransaction('putManyMarblesBatch', `${entries}`, ...processOptions(keylength, true, seed, collection));
+        let buf = await contract.submitTransaction('putManyObjectsBatch', `${entries}`, ...processOptions(keylength, true, seed, collection));
         let bufStr = buf.toString()
-        let delBuf = await contract.submitTransaction('delManyMarblesBatch', `${entries}`, ...processOptions(keylength, useBatchAPI, seed, collection))
+        let delBuf = await contract.submitTransaction('delManyObjectsBatch', `${entries}`, ...processOptions(keylength, useBatchAPI, seed, collection))
         let delStr = delBuf.toString()
         logFile.write(bufStr.substring(bufStr.indexOf(":") + 1, bufStr.length - 1) + "\n")
         logFile.write(delStr.substring(delStr.indexOf(":") + 1, delStr.length - 1) + "\n")
